@@ -15,6 +15,11 @@ public class MalePerson extends Person implements MaleRelations
     super();
   }
 
+  public MalePerson(String name, Family chettiamKudiyil)
+  {
+    super(name,chettiamKudiyil);
+  }
+
   public Set<Person> getBrotherOf()
   {
    return getSiblings();

@@ -3,6 +3,13 @@ package com.ajopaul.familytree.family;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ *  A Person class representing 
+ *
+ * @author E416222
+ * @creation Apr 12, 2010
+ *
+ */ 
 public class Person
 {
   String name;
@@ -12,14 +19,24 @@ public class Person
   Set<Person> children;
   Person spouse;
   Set<Person> parents;
+  Family family;
   
   public Person(String name){
     this.name = name;
   }
   
+  public Person(String name,String familyName){
+    this(name,new Family(familyName));
+  }
   
   public Person()
   {
+  }
+
+  public Person(String name, Family family)
+  {
+    this.name = name;
+    this.family = family;
   }
 
   public Person getSpouse()
@@ -31,24 +48,46 @@ public class Person
    * Add spouse and also transfer the children.
    * @param spouse
    */
-  public void setSpouse(Person spouse)
+  public void addSpouse(Person spouse)
   {
     this.spouse = spouse;
     if(null == spouse.getSpouse()){
-      spouse.setSpouse(this);
+      spouse.addSpouse(this);
     }
-    this.setChildren(spouse.getChildren());
+    Set<Person> thisChildren = this.children;
+    Set<Person> spouseChildren = spouse.getChildren();
+    
+    if(null == thisChildren && null != spouseChildren){//Spouse has kids and this doesn't
+      copyChildren(spouseChildren,this);
+    }else if(null != thisChildren && null == spouseChildren){//If this has kids and spouse doesn't
+      copyChildren(thisChildren,spouse);
+    }else if(null != thisChildren && null != spouseChildren){
+      if(thisChildren.size() > spouseChildren.size()){
+        copyChildren(thisChildren,spouse);
+      }else if(thisChildren.size() < spouseChildren.size()){
+        copyChildren(spouseChildren,this);
+      }
+    }
+    
+  }
+
+
+  /*
+   * Copy the set of fromChildren to person toPerson.
+   * @param fromChildren
+   * @param toPerson
+   */
+  private void copyChildren(Set<Person> fromChildren,Person toPerson)
+  {
+    for(Person child:fromChildren){
+      toPerson.addChild(child);
+    }
   }
   
   private void setParents(Set<Person> parent){
     this.parents = parent;
   }
   
-  private void setChildren(Set<Person> children)
-  {
-    this.children = children;
-    
-  }
   /**
    * Set this person as child of parent.
    * also set the same for this person's siblings.
@@ -113,6 +152,10 @@ public class Person
     if(null != siblings){
       if(!isPersonAlreadyAdded(siblings,person)){
         siblings.add(person);
+        for(Person sib:siblings){
+          if(!sib.equals(person))
+            sib.addSibling(person);
+        }
       }else{
         return;
       }
@@ -179,20 +222,7 @@ public class Person
     }
 
     person.addParent(this);
-   
-    /*
-    Set<Person> tempSiblings = person.getSiblings();
-    if(null != tempSiblings){
-      for(Person sibling:tempSiblings){
-        if(null == sibling.getChildOf()){
-          sibling.setChildOf(this);
-        }
-        if(null != children && !isPersonAlreadyAdded(children, sibling)){
-          this.addChild(sibling);
-        }
-      }
-    }
-    */
+  
     if(null != this.getSpouse()){
       this.getSpouse().addChild(person);
     }
