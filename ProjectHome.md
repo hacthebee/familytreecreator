@@ -1,0 +1,1 @@
+Family Tree Creator will help one generate a family tree graph by adding Persons and their relation ships.
